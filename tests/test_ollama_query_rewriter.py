@@ -1,8 +1,6 @@
 from unittest.mock import patch
-
-import frame_finder.ml.classes.ollama_query_rewriter as oqr
 from frame_finder.ml.classes.ollama_query_rewriter import OllamaQueryRewriter
-
+import frame_finder.ml.classes.ollama_query_rewriter as oqr
 
 def test_constructor_stores_model_name():
     rewriter = OllamaQueryRewriter("qwen2.5:1.5b")
@@ -11,7 +9,6 @@ def test_constructor_stores_model_name():
 
 
 def test_rewrite_returns_chat_response():
-
     fake_response = {
         "message": {
             "content": "OpenAI"
@@ -27,7 +24,6 @@ def test_rewrite_returns_chat_response():
 
 
 def test_rewrite_calls_chat_correctly():
-
     fake_response = {
         "message": {
             "content": "OpenAI"

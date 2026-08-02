@@ -115,7 +115,7 @@ class LocalDataStore(DataStore):
         directory.mkdir(parents=True, exist_ok=True)
 
         self._save_transcripts(directory, indexed_video)
-        #self._save_video_frames(directory, indexed_video)
+        self._save_video_frames(directory, indexed_video)
 
     def load(
         self,
@@ -131,9 +131,9 @@ class LocalDataStore(DataStore):
             )
 
         transcript_segments = self._load_transcripts(directory)
-        #video_frames = self._load_embeddings(directory)
+        video_frames = self._load_embeddings(directory)
 
         return IndexedVideo(
             transcript_segments,
-            [],
+            video_frames,
         )

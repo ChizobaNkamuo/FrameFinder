@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
-import pytest
-import frame_finder.ml.classes.whisper_transcriber as wt
 from frame_finder.ml.classes.whisper_transcriber import WhisperTranscriber
+import frame_finder.ml.classes.whisper_transcriber as wt
+import pytest
 
 VALID_MODELS = [
     "tiny",

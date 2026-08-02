@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
-import frame_finder.pipeline.classes.rule_based_classifier as rbc
 from frame_finder.pipeline.classes.rule_based_classifier import RuleBasedClassifier
+import frame_finder.pipeline.classes.rule_based_classifier as rbc
 
 def _token(lemma: str):
     token = MagicMock()

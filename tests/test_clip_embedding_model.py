@@ -1,10 +1,10 @@
-import pytest, torch, os
 from PIL import Image
+from frame_finder.ml.classes.clip_embedding_model import CLIPEmbeddingModel
 from unittest.mock import MagicMock, patch
 from dotenv import load_dotenv
-
 import frame_finder.ml.classes.clip_embedding_model as cem
-from frame_finder.ml.classes.clip_embedding_model import CLIPEmbeddingModel
+import pytest, torch, os
+
 load_dotenv()
 
 MODEL_NAME = "openai/clip-vit-base-patch32"
