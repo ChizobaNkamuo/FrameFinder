@@ -1,0 +1,10 @@
+say
+mention
+talk
+discuss
+explain
+describe
+call
+quote
+speak
+tell
