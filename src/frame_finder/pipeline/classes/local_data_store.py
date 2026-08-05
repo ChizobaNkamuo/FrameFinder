@@ -4,11 +4,12 @@ from frame_finder.pipeline.interfaces.data_store import DataStore
 from frame_finder.data_classes.indexed_video import IndexedVideo
 from frame_finder.data_classes.transcript_segment import TranscriptSegment
 from frame_finder.data_classes.video_frame import VideoFrame
+from frame_finder.data_classes.video_data import VideoData
 import torch, json
 
 class LocalDataStore(DataStore):
-    def __init__(self):
-        self._root = Path("data")
+    def __init__(self, root: Path):
+        self._root = root
 
     def _save_transcripts(self, directory: Path, indexed_video: IndexedVideo) -> None:
         transcript_metadata = []
@@ -108,11 +109,21 @@ class LocalDataStore(DataStore):
         self,
         username: str,
         video_id: str,
-        indexed_video: IndexedVideo,
+        filename: str,
+        indexed_video: IndexedVideo
     ) -> None:
 
         directory = self._root / username / video_id
         directory.mkdir(parents=True, exist_ok=True)
+
+        metadata = {
+            "video_id": video_id,
+            "username": username,
+            "filename": filename
+        }
+
+        with open(directory / "metadata.json", "w") as f:
+            json.dump(metadata, f, indent=4)
 
         self._save_transcripts(directory, indexed_video)
         self._save_video_frames(directory, indexed_video)
@@ -121,7 +132,7 @@ class LocalDataStore(DataStore):
         self,
         username: str,
         video_id: str,
-    ) -> IndexedVideo:
+    ) -> VideoData:
 
         directory = self._root / username / video_id
 
@@ -130,10 +141,44 @@ class LocalDataStore(DataStore):
                 f"No indexed video found at '{directory}'."
             )
 
+        with open(directory / "metadata.json") as f:
+            metadata = json.load(f)
+
         transcript_segments = self._load_transcripts(directory)
         video_frames = self._load_embeddings(directory)
 
-        return IndexedVideo(
+        indexed_video = IndexedVideo(
             transcript_segments,
             video_frames,
         )
+
+        return VideoData(
+            indexed_video,
+            metadata
+            )
+
+    def load_all(
+        self,
+        username: str,
+    ) -> List[VideoData]:
+            user_directory = self._root / username
+
+            if not user_directory.exists():
+                raise FileNotFoundError(
+                    f"No videos found for user '{username}'."
+                )
+
+            videos = []
+
+            for directory in user_directory.iterdir():
+
+                if not directory.is_dir():
+                    continue
+
+                videos.append(
+                    self.load(
+                        username=username,
+                        video_id=directory.name,
+                    )
+                )
+            return videos

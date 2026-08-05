@@ -5,18 +5,22 @@ from frame_finder.pipeline.interfaces.query_classifier import QueryClassifier
 from frame_finder.ml.interfaces.query_rewriter import QueryRewriter
 from frame_finder.pipeline.interfaces.frame_processor import FrameProcessor
 from frame_finder.pipeline.interfaces.embedding_ranker import EmbeddingRanker
+from frame_finder.pipeline.interfaces.data_store import DataStore
 from frame_finder.data_classes.transcript_segment import TranscriptSegment
 from frame_finder.data_classes.indexed_video import IndexedVideo
 from frame_finder.data_classes.query import Query
 from frame_finder.data_classes.video_frame import VideoFrame
 from frame_finder.data_classes.embeddable import Embeddable
+from frame_finder.data_classes.video_data import VideoData
 import numpy as np
+import uuid
 
 class Pipeline:
     def __init__(self, 
                  speech_transcriber: SpeechTranscriber, embedding_model: EmbeddingModel,
                  query_classifier: QueryClassifier, query_rewriter: QueryRewriter,
-                 frame_processor: FrameProcessor, embedding_ranker: EmbeddingRanker
+                 frame_processor: FrameProcessor, embedding_ranker: EmbeddingRanker,
+                 data_store: DataStore
                  ):
         self._speech_transcriber = speech_transcriber
         self._embedding_model = embedding_model
@@ -24,6 +28,7 @@ class Pipeline:
         self._query_rewriter = query_rewriter
         self._frame_processor = frame_processor
         self._embedding_ranker = embedding_ranker
+        self._data_store = data_store
 
     def transcribe(self, audio_path: str) -> dict:
         return self._speech_transcriber.transcribe(audio_path)
@@ -94,4 +99,18 @@ class Pipeline:
                 print(" ("  + str(frame.timestamp) +")")
 
         return IndexedVideo(ranked_transcript_segments, ranked_video_frames)
-            
+
+    def index_video(self, username: str, video_path: str) -> None:
+        transcripted_segments = self.transcribe(video_path)["segments"]
+        processed_frames = self.process_frames(video_path, 10)
+        processed_segments = self.process_segments(transcripted_segments)
+        indexed_video = IndexedVideo(processed_segments, processed_frames)
+        video_id = str(uuid.uuid4())
+
+        self._data_store.save(username, video_id, indexed_video)
+
+    def load_video(self, username: str, video_id: str) -> VideoData:
+        return self._data_store.load(username, video_id)
+
+    def load_all(self, username: str) -> List[VideoData]:
+        return self._data_store.load_all(username)

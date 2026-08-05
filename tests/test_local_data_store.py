@@ -5,12 +5,7 @@ from frame_finder.data_classes.transcript_segment import TranscriptSegment
 from frame_finder.data_classes.video_frame import VideoFrame
 import torch, pytest
 
-def _segment(
-    start: float,
-    end: float,
-    text: str,
-) -> TranscriptSegment:
-
+def _segment(start: float, end: float, text: str) -> TranscriptSegment:
     return TranscriptSegment(
         start=start,
         end=end,
@@ -40,139 +35,90 @@ def _indexed_video() -> IndexedVideo:
 
 
 def _create_store(tmp_path: Path) -> LocalDataStore:
-    store = LocalDataStore()
-    store._root = tmp_path
-    return store
+    return LocalDataStore(tmp_path)
 
 
-def test_save_creates_expected_files(tmp_path):
-    store = _create_store(tmp_path)
-    video = _indexed_video()
-
-    store.save(
-        username="alice",
-        video_id="video1",
-        indexed_video=video,
-    )
-
-    directory = tmp_path / "alice" / "video1"
-
-    assert directory.exists()
-
-    assert (directory / "transcript_metadata.json").exists()
-    assert (directory / "transcript_embeddings.pt").exists()
-    assert (directory / "frame_metadata.json").exists()
-    assert (directory / "frame_embeddings.pt").exists()
-
-
-def test_load_returns_original_transcript_segments(tmp_path):
-    store = _create_store(tmp_path)
-    video = _indexed_video()
-
-    store.save(
-        username="alice",
-        video_id="video1",
-        indexed_video=video,
-    )
-
-    loaded = store.load(
-        username="alice",
-        video_id="video1",
-    )
-
-    expected = video.transcript_segments
-    actual = loaded.transcript_segments
-
-    assert len(actual) == len(expected)
+def _assert_transcripts_equal(expected, actual):
+    assert len(expected) == len(actual)
 
     for e, a in zip(expected, actual):
-
         assert e.start == a.start
         assert e.end == a.end
         assert e.text == a.text
         assert torch.equal(e.embedding, a.embedding)
 
 
-def test_load_returns_original_video_frames(tmp_path):
+def _assert_frames_equal(expected, actual):
+    assert len(expected) == len(actual)
+
+    for e, a in zip(expected, actual):
+        assert e.timestamp == a.timestamp
+        assert torch.equal(e.embedding, a.embedding)
+
+
+def test_save_creates_expected_files(tmp_path):
     store = _create_store(tmp_path)
-    video = _indexed_video()
 
     store.save(
         username="alice",
         video_id="video1",
-        indexed_video=video,
+        filename="lecture.mp4",
+        indexed_video=_indexed_video(),
     )
 
-    loaded = store.load(
+    directory = tmp_path / "alice" / "video1"
+
+    assert directory.exists()
+
+    assert (directory / "metadata.json").exists()
+    assert (directory / "transcript_metadata.json").exists()
+    assert (directory / "transcript_embeddings.pt").exists()
+    assert (directory / "frame_metadata.json").exists()
+    assert (directory / "frame_embeddings.pt").exists()
+
+
+def test_load_returns_original_video_data(tmp_path):
+    store = _create_store(tmp_path)
+
+    original = _indexed_video()
+
+    store.save(
         username="alice",
         video_id="video1",
+        filename="lecture.mp4",
+        indexed_video=original,
     )
 
-    expected = video.video_frames
-    actual = loaded.video_frames
+    loaded = store.load("alice", "video1")
 
-    assert len(actual) == len(expected)
+    assert loaded.metadata == {
+        "video_id": "video1",
+        "username": "alice",
+        "filename": "lecture.mp4",
+    }
 
-    for e, a in zip(expected, actual):
+    _assert_transcripts_equal(
+        original.transcript_segments,
+        loaded.indexed_video.transcript_segments,
+    )
 
-        assert e.timestamp == a.timestamp
-        assert torch.equal(e.embedding, a.embedding)
+    _assert_frames_equal(
+        original.video_frames,
+        loaded.indexed_video.video_frames,
+    )
 
 
 def test_load_missing_video_raises_file_not_found(tmp_path):
     store = _create_store(tmp_path)
 
     with pytest.raises(FileNotFoundError):
-        store.load(
-            username="alice",
-            video_id="missing",
-        )
-
-
-def test_save_then_load_round_trip(tmp_path):
-    store = _create_store(tmp_path)
-    original = _indexed_video()
-
-    store.save(
-        username="alice",
-        video_id="video1",
-        indexed_video=original,
-    )
-
-    loaded = store.load(
-        username="alice",
-        video_id="video1",
-    )
-
-    assert len(original.transcript_segments) == len(
-        loaded.transcript_segments
-    )
-
-    assert len(original.video_frames) == len(
-        loaded.video_frames
-    )
-
-    for o, l in zip(
-        original.transcript_segments,
-        loaded.transcript_segments,
-    ):
-        assert o.start == l.start
-        assert o.end == l.end
-        assert o.text == l.text
-        assert torch.equal(o.embedding, l.embedding)
-
-    for o, l in zip(
-        original.video_frames,
-        loaded.video_frames,
-    ):
-        assert o.timestamp == l.timestamp
-        assert torch.equal(o.embedding, l.embedding)
+        store.load("alice", "missing")
 
 
 def test_save_and_load_empty_indexed_video(tmp_path):
     store = _create_store(tmp_path)
 
-    video = IndexedVideo(
+    empty = IndexedVideo(
         transcript_segments=[],
         video_frames=[],
     )
@@ -180,13 +126,59 @@ def test_save_and_load_empty_indexed_video(tmp_path):
     store.save(
         username="alice",
         video_id="video1",
-        indexed_video=video,
+        filename="empty.mp4",
+        indexed_video=empty,
     )
 
-    loaded = store.load(
-        username="alice",
-        video_id="video1",
+    loaded = store.load("alice", "video1")
+
+    assert loaded.indexed_video.transcript_segments == []
+    assert loaded.indexed_video.video_frames == []
+
+    assert loaded.metadata["filename"] == "empty.mp4"
+
+
+def test_load_all_returns_all_videos(tmp_path):
+    store = _create_store(tmp_path)
+
+    store.save(
+        "alice",
+        "video1",
+        "lecture.mp4",
+        _indexed_video(),
     )
 
-    assert loaded.transcript_segments == []
-    assert loaded.video_frames == []
+    store.save(
+        "alice",
+        "video2",
+        "cats.mp4",
+        _indexed_video(),
+    )
+
+    videos = store.load_all("alice")
+
+    assert len(videos) == 2
+
+    filenames = {video.metadata["filename"] for video in videos}
+
+    assert filenames == {
+        "lecture.mp4",
+        "cats.mp4",
+    }
+
+
+def test_load_all_returns_empty_list_when_user_has_no_videos(tmp_path):
+    store = _create_store(tmp_path)
+
+    (tmp_path / "alice").mkdir()
+
+    videos = store.load_all("alice")
+
+    assert videos == []
+
+
+def test_load_all_missing_user_raises_file_not_found(tmp_path):
+    store = _create_store(tmp_path)
+
+    with pytest.raises(FileNotFoundError):
+        store.load_all("alice")

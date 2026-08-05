@@ -1,16 +1,16 @@
-from fastapi import FastAPI, UploadFile, File
-from pathlib import Path
-
 from frame_finder.ml.classes.whisper_transcriber import WhisperTranscriber
 from frame_finder.ml.classes.clip_embedding_model import CLIPEmbeddingModel
 from frame_finder.pipeline.classes.pipeline import Pipeline
 from frame_finder.pipeline.classes.local_data_store import LocalDataStore
+from frame_finder.data_classes.indexed_video import IndexedVideo
 from frame_finder.pipeline.classes.rule_based_classifier import RuleBasedClassifier
 from frame_finder.ml.classes.ollama_query_rewriter import OllamaQueryRewriter
 from frame_finder.pipeline.classes.open_cv_frame_processor import OpenCVFrameProcessor
 from frame_finder.pipeline.classes.pytorch_embedding_ranker import PytorchEmbeddingRanker
 
-import shutil
+username = "Chizoba"
+video_id = "WorldModels"
+load_video = True
 
 speech_transcriber = WhisperTranscriber("small")
 embedding_model = CLIPEmbeddingModel("openai/clip-vit-base-patch32")
@@ -18,7 +18,7 @@ frame_processor = OpenCVFrameProcessor(embedding_model)
 query_classifier = RuleBasedClassifier()
 query_rewriter = OllamaQueryRewriter("qwen2.5:1.5b")
 embedding_ranker = PytorchEmbeddingRanker()
-data_store = LocalDataStore(Path("data"))
+data_store = LocalDataStore()
 
 pipeline = Pipeline(
     speech_transcriber, 
@@ -30,36 +30,19 @@ pipeline = Pipeline(
     data_store
 )
 
-app = FastAPI()
+indexed_video = None
+if load_video:
+    indexed_video = data_store.load(username, video_id)
+else:  
+    video_path = f"sample_videos/{video_id}.mp4"
+    transcripted_segments = pipeline.transcribe(video_path)["segments"]
+    processed_frames = pipeline.process_frames(video_path, 10)
+    processed_segments = pipeline.process_segments(transcripted_segments)
+    indexed_video = IndexedVideo(processed_segments, processed_frames)
+    data_store.save(username, video_id, indexed_video)
 
-@app.post("/index/upload")
-async def upload_video(
-    username: str,
-    video: UploadFile = File(...),
-):
-    temp_path = Path("temp") / video.filename
-
-    with temp_path.open("wb") as buffer:
-        shutil.copyfileobj(video.file, buffer)
-
-    pipeline.index_video(username, temp_path)
-    temp_path.unlink()
+formatted_query = pipeline.extract_query_info("Show me where there's a diagram")#Where is OpenAI mentioned?
+print(formatted_query)
+results = pipeline.get_ranked_video(formatted_query, indexed_video)
 
 
-@app.post("/search")
-async def search(
-    username: str,
-    video_id: str,
-    query: str
-):
-    video_data = pipeline.load_video(username, video_id)
-    formatted_query = pipeline.extract_query_info(query)
-    return pipeline.get_ranked_video(formatted_query, video_data.indexed_video)
-
-@app.get("/videos/{username}")
-async def get_all_videos(username: str):
-    return pipeline.load_all(username)
-
-@app.get("/videos/{username}/{video_id}")
-async def get_video(username: str, video_id: str):
-    return pipeline.load(username, video_id)
