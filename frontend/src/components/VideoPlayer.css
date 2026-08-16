@@ -1,0 +1,19 @@
+.video-player {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+
+    margin-bottom: 24px;
+
+    background-color: #111;
+
+    overflow: hidden;
+}
+
+.video-player-video {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: contain;
+}

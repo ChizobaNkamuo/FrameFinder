@@ -1,0 +1,37 @@
+.video-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    margin-top: 6px;
+
+    font-size: 12px;
+    color: #888;
+}
+
+.video-status-failed {
+    color: #f54545;
+}
+
+.video-status-failed-icon {
+    width: 15px;
+    height: 15px;
+    color: #f54545;
+}
+
+.video-status-spinner {
+    width: 11px;
+    height: 11px;
+
+    border: 2px solid #e0e0e0;
+    border-top-color: #269bd1;
+    border-radius: 50%;
+
+    animation: video-status-spin 0.8s linear infinite;
+}
+
+@keyframes video-status-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

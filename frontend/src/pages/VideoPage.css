@@ -1,0 +1,18 @@
+.video-page {
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 24px 5%;
+}
+
+.video-page-content {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto 0;
+}
+
+.video-search {
+    width: 100%;
+
+    margin-bottom: 24px;
+}
