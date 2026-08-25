@@ -1,6 +1,6 @@
 from PIL import Image
 from transformers import CLIPModel, CLIPProcessor
-from backend.src.frame_finder.ml.interfaces.embedding_model import EmbeddingModel
+from src.frame_finder.ml.interfaces.embedding_model import EmbeddingModel
 from dotenv import load_dotenv
 import torch, os
 load_dotenv()

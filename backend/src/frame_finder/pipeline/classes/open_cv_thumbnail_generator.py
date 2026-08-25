@@ -1,5 +1,5 @@
 from pathlib import Path
-from backend.src.frame_finder.pipeline.interfaces.thumbnail_generator import ThumbnailGenerator
+from src.frame_finder.pipeline.interfaces.thumbnail_generator import ThumbnailGenerator
 import cv2
 import numpy as np
 

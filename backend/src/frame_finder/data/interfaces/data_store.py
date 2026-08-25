@@ -1,28 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import List
-from pathlib import Path
 from fastapi import UploadFile
-from backend.src.frame_finder.data_classes.transcript_segment import TranscriptSegment
-from backend.src.frame_finder.data_classes.video_frame import VideoFrame
-from backend.src.frame_finder.data_classes.video_data import VideoData
+from src.frame_finder.data_classes.transcript_segment import TranscriptSegment
+from src.frame_finder.data_classes.video_frame import VideoFrame
+from src.frame_finder.data_classes.video_data import VideoData
+from pathlib import Path
 import numpy as np
 
 class DataStore(ABC):
-    """
-        @abstractmethod
-        def save(
-            self,
-            username: str,
-            video_id: str,
-            filename: str,
-            indexed_video: IndexedVideo
-        ) -> None:
-            pass
-    """
     @abstractmethod
     def save_transcripts(
         self,
-        username: str,
+        user_id: str,
         video_id: str,
         transcript_segments: List[TranscriptSegment],
     ) -> None:
@@ -31,7 +20,7 @@ class DataStore(ABC):
     @abstractmethod
     def save_video_frames(
         self,
-        username: str,
+        user_id: str,
         video_id: str,
         video_frames: List[VideoFrame],
     ) -> None:
@@ -40,17 +29,17 @@ class DataStore(ABC):
     @abstractmethod
     def save_upload(
         self,
-        username: str,
+        user_id: str,
         video_id: str,
-        file: UploadFile,
+        video_path: Path,
         metadata: dict
-    ) -> Path:
+    ) -> None:
         pass
 
     @abstractmethod
     def save_thumbnail(
         self,
-        username: str,
+        user_id: str,
         video_id: str,
         thumbnail: np.ndarray,
     ) -> None:
@@ -59,24 +48,39 @@ class DataStore(ABC):
     @abstractmethod
     def update_metadata(
         self,
-        username: str,
+        user_id: str,
         video_id: str,
         updates: dict,
     ) -> None:
         pass
 
     @abstractmethod
-    def load(
+    def load_all_metadata(
         self,
-        username: str,
-        video_id: str,
-    ) -> VideoData:
+        user_id: str,
+    ) -> List[dict]:
         pass
 
     @abstractmethod
-    def load_all(
+    def get_thumbnail_url(
         self,
-        username: str,
-    ) -> List[VideoData]:
+        user_id: str,
+        video_id: str,
+    ) -> str:
         pass
 
+    @abstractmethod
+    def get_video_url(
+        self,
+        user_id: str,
+        video_id: str,
+    ) -> str:
+        pass
+
+    @abstractmethod
+    def load_indexed_video(
+        self,
+        user_id: str,
+        video_id: str,
+    ) -> VideoData:
+        pass

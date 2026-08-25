@@ -1,5 +1,5 @@
 import whisper, torch
-from backend.src.frame_finder.ml.interfaces.speech_transcriber import SpeechTranscriber
+from src.frame_finder.ml.interfaces.speech_transcriber import SpeechTranscriber
 from pathlib import Path
 
 class WhisperTranscriber(SpeechTranscriber):

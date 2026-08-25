@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from backend.src.frame_finder.data_classes.transcript_segment import TranscriptSegment
-from backend.src.frame_finder.data_classes.video_frame import VideoFrame
+from src.frame_finder.data_classes.transcript_segment import TranscriptSegment
+from src.frame_finder.data_classes.video_frame import VideoFrame
 
 @dataclass
 class IndexedVideo:

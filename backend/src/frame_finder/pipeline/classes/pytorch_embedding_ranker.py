@@ -1,5 +1,5 @@
-from backend.src.frame_finder.data_classes.embeddable import Embeddable
-from backend.src.frame_finder.pipeline.interfaces.embedding_ranker import EmbeddingRanker
+from src.frame_finder.data_classes.embeddable import Embeddable
+from src.frame_finder.pipeline.interfaces.embedding_ranker import EmbeddingRanker
 from typing import List
 import torch.nn.functional as F
 import torch

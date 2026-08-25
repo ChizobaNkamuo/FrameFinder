@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from backend.src.frame_finder.data_classes.embeddable import Embeddable
+from src.frame_finder.data_classes.embeddable import Embeddable
 from typing import List
 import torch
 

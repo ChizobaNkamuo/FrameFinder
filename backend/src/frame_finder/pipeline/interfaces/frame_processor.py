@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from backend.src.frame_finder.data_classes.video_frame import VideoFrame
+from src.frame_finder.data_classes.video_frame import VideoFrame
 from typing import List
 from pathlib import Path
 

@@ -1,8 +1,8 @@
 from typing import List
 import cv2
-from backend.src.frame_finder.data_classes.video_frame import VideoFrame
-from backend.src.frame_finder.ml.interfaces.embedding_model import EmbeddingModel
-from backend.src.frame_finder.pipeline.interfaces.frame_processor import FrameProcessor
+from src.frame_finder.data_classes.video_frame import VideoFrame
+from src.frame_finder.ml.interfaces.embedding_model import EmbeddingModel
+from src.frame_finder.pipeline.interfaces.frame_processor import FrameProcessor
 from pathlib import Path
 
 class OpenCVFrameProcessor(FrameProcessor):

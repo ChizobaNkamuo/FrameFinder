@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from backend.src.frame_finder.data_classes.embeddable import Embeddable
+from src.frame_finder.data_classes.embeddable import Embeddable
 import numpy as np
 
 @dataclass

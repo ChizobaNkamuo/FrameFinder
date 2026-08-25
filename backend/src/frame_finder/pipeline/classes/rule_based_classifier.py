@@ -1,11 +1,11 @@
 from spacy.language import Language
 import spacy
-from backend.src.frame_finder.pipeline.interfaces.query_classifier import QueryClassifier
-from backend.src.frame_finder.files import load_word_set
+from src.frame_finder.pipeline.interfaces.query_classifier import QueryClassifier
+from src.frame_finder.files import load_word_set
 
 class RuleBasedClassifier(QueryClassifier):
-    _SPEECH_WORDS = load_word_set("backend.src.frame_finder.config", "speech_words.txt")
-    _VISION_WORDS = load_word_set("backend.src.frame_finder.config", "vision_words.txt")
+    _SPEECH_WORDS = load_word_set("src.frame_finder.config", "speech_words.txt")
+    _VISION_WORDS = load_word_set("src.frame_finder.config", "vision_words.txt")
 
     def __init__(self):
         self._nlp: Language = spacy.load("en_core_web_sm")

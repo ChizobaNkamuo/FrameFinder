@@ -1,9 +1,9 @@
 from ollama import chat
-from backend.src.frame_finder.ml.interfaces.query_rewriter import QueryRewriter
-from backend.src.frame_finder.files import load_text
+from src.frame_finder.ml.interfaces.query_rewriter import QueryRewriter
+from src.frame_finder.files import load_text
 
 class OllamaQueryRewriter(QueryRewriter):
-    _SYSTEM_PROMPT = load_text("backend.src.frame_finder.config", "slm_system_prompt.txt")
+    _SYSTEM_PROMPT = load_text("src.frame_finder.config", "slm_system_prompt.txt")
 
     def __init__(self, model: str):
         self._model = model
