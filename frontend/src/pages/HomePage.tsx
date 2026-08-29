@@ -35,10 +35,11 @@ export default function HomePage() {
     const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
+        
         let interval: number | undefined;
 
         async function fetchVideos() {
-            const latest_videos = await getVideos("Chizoba");
+            const latest_videos = await getVideos();
             setVideos(prev => mergeVideos(prev, latest_videos));
 
             return latest_videos;
@@ -47,7 +48,7 @@ export default function HomePage() {
         async function initialise() {
             const latest_videos = await fetchVideos();
             if (latest_videos.some(video => video.status === "processing")) {
-                interval = window.setInterval(fetchVideos, 2000);
+                interval = window.setInterval(fetchVideos, 10000);
             }
         }
 

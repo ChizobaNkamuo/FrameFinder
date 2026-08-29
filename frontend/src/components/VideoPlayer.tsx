@@ -1,5 +1,6 @@
 import "./VideoPlayer.css";
-import { API_URL } from "../config";
+import { apiFetchWithAccessToken } from "../api/auth";
+import { useEffect, useState } from "react";
 
 type VideoPlayerProps = {
     videoId: string;
@@ -9,16 +10,29 @@ type VideoPlayerProps = {
 export default function VideoPlayer({
     videoId, videoRef
 }: VideoPlayerProps) {
-    const videoUrl =
-        `${API_URL}/videos/Chizoba/${videoId}/file`;
+    const [videoURL, setVideoURL] = useState<string| null>(null);
 
+    async function fetchVideoURL(): Promise<void> {
+        const response = await apiFetchWithAccessToken(
+            `/videos/${videoId}`,
+        )
+
+        if (response.ok) {
+            const videoUrl = await response.json()
+            setVideoURL(videoUrl)
+        }
+    }
+
+    useEffect(() => {
+        fetchVideoURL()
+    }, [videoId])
 
     return (
         <div className="video-player">
             <video
                 ref={videoRef}
                 className="video-player-video"
-                src={videoUrl}
+                src={videoURL}
                 controls
             />
         </div>

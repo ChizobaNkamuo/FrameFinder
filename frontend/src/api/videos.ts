@@ -1,11 +1,8 @@
 import type { LightVideoResponse, SearchResponse, UploadResponse} from "../interfaces/videos";
-import { apiFetch } from "./client";
+import { apiFetchWithAccessToken } from "./auth";
 
-export async function getVideos(
-    username: string
-): Promise<LightVideoResponse[]> {
-    
-    const response = await apiFetch(`/videos/${username}`);
+export async function getVideos(): Promise<LightVideoResponse[]> {
+    const response = await apiFetchWithAccessToken(`/videos`);
 
     if (!response.ok) {
         throw new Error("Failed to fetch videos");
@@ -16,15 +13,14 @@ export async function getVideos(
 
 
 export async function uploadVideo(
-    username: string, 
     file: File
 ): Promise<UploadResponse> {
     const formData = new FormData();
 
     formData.append("file", file);
 
-    const response = await apiFetch(
-        `/index/upload/${username}`,
+    const response = await apiFetchWithAccessToken(
+        `/index/upload`,
         {
             method: "POST",
             body: formData,
@@ -39,7 +35,6 @@ export async function uploadVideo(
 }
 
 export async function getSearchQueryResult(
-    username: string,
     video_id: string,
     query: string,
     top_k: number
@@ -50,8 +45,8 @@ export async function getSearchQueryResult(
         top_k: top_k.toString(),
     });
 
-    const response = await apiFetch(
-        `/search/${username}/${video_id}?${params.toString()}`,
+    const response = await apiFetchWithAccessToken(
+        `/search/${video_id}?${params.toString()}`,
         {
             method: "POST",
         }

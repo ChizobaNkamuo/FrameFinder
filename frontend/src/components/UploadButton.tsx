@@ -33,7 +33,7 @@ export default function UploadButton({onUpload, StartPoll, UpdateVideo}: UploadB
             });
             
             try {
-                var result = await uploadVideo("Chizoba", selectedFile);
+                var result = await uploadVideo(selectedFile);
 
                 const updates: VideoUpdates = {
                     video_id: result.video_id

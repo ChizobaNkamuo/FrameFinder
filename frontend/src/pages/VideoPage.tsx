@@ -28,7 +28,6 @@ export default function VideoPage() {
         
         try {
             const latest_results = await getSearchQueryResult(
-                "Chizoba",
                 videoId!,
                 newQuery,
                 10
@@ -63,7 +62,7 @@ export default function VideoPage() {
             <BackButton />
 
             <main className="video-page-content">
-                <VideoPlayer videoId={videoId ?? ""} videoRef={videoRef}/>
+                <VideoPlayer videoId={videoId ?? null} videoRef={videoRef}/>
 
                 <SearchBar onSearch={fetchSearchResult} processing={processingQuery} />
 

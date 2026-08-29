@@ -33,7 +33,7 @@ export default function VideoCard({
             <div className="video-card-thumbnail">
                 {thumbnail_url !== "" && (
                     <img
-                        src={API_URL + thumbnail_url}
+                        src={thumbnail_url}
                         alt={video.filename}
                     />
                 )}

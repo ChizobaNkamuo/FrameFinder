@@ -33,3 +33,4 @@ dist-ssr
 data/*
 sample_videos/*
 .env
+temp/*
