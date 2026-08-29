@@ -1,13 +1,11 @@
-FROM python:3.12-slim
+FROM python:3.12
 
 WORKDIR /app
 
-COPY backend/requirements.txt .
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend/src ./src
+COPY src ./src
 
-ENV PYTHONPATH=/app
-
-CMD ["uvicorn", "src.frame_finder.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn src.frame_finder.api.main:app --host 0.0.0.0 --port $PORT"]
