@@ -1,7 +1,23 @@
-from src.frame_finder.pipeline.classes.pipeline_factory import PipelineFactory
-from src.frame_finder.pipeline.classes.pipeline import Pipeline
+from src.frame_finder.pipeline.classes.worker_pipeline_factory import WorkerPipelineFactory
+from src.frame_finder.pipeline.classes.worker_pipeline import WorkerPipeline
 
-worker_pipeline = PipelineFactory().new()
+_worker_pipeline: WorkerPipeline | None = None
 
-def get_worker_pipeline() -> Pipeline:
-    return worker_pipeline
+def get_worker_pipeline() -> WorkerPipeline:
+    global _worker_pipeline
+
+    if _worker_pipeline is None:
+        _worker_pipeline = WorkerPipelineFactory().new()
+
+    return _worker_pipeline
+
+def process_video_job(
+    user_id: str,
+    video_id: str,
+) -> None:
+    worker_pipeline = get_worker_pipeline()
+
+    worker_pipeline.process_video(
+        user_id,
+        video_id,
+    )

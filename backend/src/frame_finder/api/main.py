@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.frame_finder.data.classes.supabase_auth_provider_factory import SupabaseAuthProviderFactory
-from src.frame_finder.pipeline.classes.pipeline_factory import PipelineFactory
+from src.frame_finder.pipeline.classes.main_pipeline_factory import MainPipelineFactory
 from src.frame_finder.pipeline.classes.redis_queue_factory import RedisQueueFactory
 
 from src.frame_finder.pydantic_classes.light_video_response import LightVideoResponse
@@ -11,12 +11,12 @@ from src.frame_finder.pydantic_classes.video_frame import VideoFrame
 from src.frame_finder.pydantic_classes.transcript_segment import TranscriptSegment
 from src.frame_finder.pydantic_classes.auth_response import AuthResponse
 from src.frame_finder.pydantic_classes.user import User
-from src.frame_finder.api.worker import get_worker_pipeline
+from src.frame_finder.api.worker import process_video_job
 
 auth_provider = SupabaseAuthProviderFactory().new()
 worker_queue = RedisQueueFactory().new()
 
-pipeline = PipelineFactory().new()
+pipeline = MainPipelineFactory().new()
 
 app = FastAPI()
 app.add_middleware(
@@ -56,16 +56,6 @@ async def get_current_user(
             detail="Invalid authentication credentials",
         )
 
-def process_video_job(
-    user_id: str,
-    video_id: str,
-) -> None:
-    worker_pipeline = get_worker_pipeline()
-
-    worker_pipeline.process_video(
-        user_id,
-        video_id,
-    )
 
 @app.post("/index/upload")
 async def upload_video(
