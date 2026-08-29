@@ -1,5 +1,7 @@
 from typing import List
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from fastapi import UploadFile
 from src.frame_finder.ml.interfaces.embedding_model import EmbeddingModel
 from src.frame_finder.ml.interfaces.speech_transcriber import SpeechTranscriber
 from src.frame_finder.pipeline.interfaces.query_classifier import QueryClassifier
@@ -7,17 +9,15 @@ from src.frame_finder.ml.interfaces.query_rewriter import QueryRewriter
 from src.frame_finder.pipeline.interfaces.frame_processor import FrameProcessor
 from src.frame_finder.pipeline.interfaces.embedding_ranker import EmbeddingRanker
 from src.frame_finder.pipeline.interfaces.thumbnail_generator import ThumbnailGenerator
-from src.frame_finder.pipeline.classes.temporary_storage import TemporaryStorage
+from src.frame_finder.pipeline.interfaces.file_downloader import FileDownloader
 from src.frame_finder.data.interfaces.data_store import DataStore
 from src.frame_finder.data_classes.transcript_segment import TranscriptSegment
 from src.frame_finder.data_classes.indexed_video import IndexedVideo
 from src.frame_finder.data_classes.query import Query
-from src.frame_finder.data_classes.video_frame import VideoFrame
 from src.frame_finder.data_classes.embeddable import Embeddable
 from src.frame_finder.data_classes.video_data import VideoData
-from fastapi import UploadFile
 import numpy as np
-import uuid
+import uuid, datetime, shutil
 
 class Pipeline:
     def __init__(self, 
@@ -25,7 +25,7 @@ class Pipeline:
                  query_classifier: QueryClassifier, query_rewriter: QueryRewriter,
                  frame_processor: FrameProcessor, embedding_ranker: EmbeddingRanker,
                  data_store: DataStore, thumbnail_generator: ThumbnailGenerator,
-                 temporary_storage: TemporaryStorage
+                 file_downloader: FileDownloader
                  ):
         self._speech_transcriber = speech_transcriber
         self._embedding_model = embedding_model
@@ -35,7 +35,7 @@ class Pipeline:
         self._embedding_ranker = embedding_ranker
         self._data_store = data_store
         self._thumbnail_generator = thumbnail_generator
-        self._temporary_storage = temporary_storage
+        self._file_downloader = file_downloader
 
     def process_segments(
         self,
@@ -145,17 +145,6 @@ class Pipeline:
             },
         )
 
-    def index_video_and_cleanup(self, user_id: str, video_id: str, video_path: Path) -> None:
-        try:
-            self.index_video(
-                user_id,
-                video_id,
-                video_path,
-            )
-
-        finally:
-            self._temporary_storage.remove(video_path)
-
     def load_indexed_video(self, user_id: str, video_id: str) -> VideoData:
         return self._data_store.load_indexed_video(user_id, video_id)
 
@@ -168,3 +157,50 @@ class Pipeline:
     def load_all_metadata(self, user_id: str) -> List[dict]:
         return self._data_store.load_all_metadata(user_id)
     
+    def process_video(
+        self,
+        user_id: str,
+        video_id: str,
+    ):
+        video_url = self.get_video_url(
+            user_id,
+            video_id,
+        )
+
+        with TemporaryDirectory() as temp_dir:
+            video_path = temp_dir / video_id
+
+            self._file_downloader.download(
+                video_url,
+                video_path,
+            )
+
+            self.index_video(
+                user_id,
+                video_id,
+                video_path,
+            )
+
+    def upload_video(self, user_id: str, file: UploadFile) -> str:
+        video_id = self.generate_video_id()
+
+        with TemporaryDirectory() as temp_dir:
+            video_path = Path(temp_dir) / file.filename
+
+            with video_path.open("wb") as buffer:
+                shutil.copyfileobj(
+                    file.file,
+                    buffer,
+                )
+
+            self.save_upload(user_id, video_id, video_path,
+            {
+                "status": "processing",
+                "stage": "Transcribing...",
+                "created_at" : str(datetime.datetime.now())
+            })
+            
+            thumbnail = self.generate_thumbnail(video_path)
+            self.save_thumbnail(user_id, video_id, thumbnail)
+
+        return video_id

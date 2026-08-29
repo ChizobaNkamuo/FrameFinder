@@ -1,51 +1,22 @@
-from fastapi import BackgroundTasks, FastAPI, UploadFile, File, HTTPException, Depends
-from pathlib import Path
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.frame_finder.ml.classes.whisper_transcriber import WhisperTranscriber
-from src.frame_finder.ml.classes.clip_embedding_model import CLIPEmbeddingModel
-from src.frame_finder.pipeline.classes.pipeline import Pipeline
-
-from src.frame_finder.pipeline.classes.rule_based_classifier import RuleBasedClassifier
-from src.frame_finder.ml.classes.ollama_query_rewriter import OllamaQueryRewriter
-from src.frame_finder.pipeline.classes.open_cv_frame_processor import OpenCVFrameProcessor
-from src.frame_finder.pipeline.classes.pytorch_embedding_ranker import PytorchEmbeddingRanker
-from src.frame_finder.pipeline.classes.open_cv_thumbnail_generator import OpenCVThumbnailGenerator
-from src.frame_finder.pipeline.classes.temporary_storage import TemporaryStorage
 from src.frame_finder.data.classes.supabase_auth_provider_factory import SupabaseAuthProviderFactory
-from src.frame_finder.data.classes.supabase_data_store_factory import SupabaseDataStoreFactory
+from src.frame_finder.pipeline.classes.pipeline_factory import PipelineFactory
+from src.frame_finder.pipeline.classes.redis_queue_factory import RedisQueueFactory
+
 from src.frame_finder.pydantic_classes.light_video_response import LightVideoResponse
 from src.frame_finder.pydantic_classes.search_response import SearchResponse
 from src.frame_finder.pydantic_classes.video_frame import VideoFrame
 from src.frame_finder.pydantic_classes.transcript_segment import TranscriptSegment
 from src.frame_finder.pydantic_classes.auth_response import AuthResponse
 from src.frame_finder.pydantic_classes.user import User
+from src.frame_finder.api.worker import get_worker_pipeline
 
-import datetime
+auth_provider = SupabaseAuthProviderFactory().new()
+worker_queue = RedisQueueFactory().new()
 
-speech_transcriber = WhisperTranscriber(model_size="small")
-embedding_model = CLIPEmbeddingModel(model="openai/clip-vit-base-patch32")
-frame_processor = OpenCVFrameProcessor(embedding_model=embedding_model)
-query_classifier = RuleBasedClassifier()
-query_rewriter = OllamaQueryRewriter(model="qwen2.5:1.5b")
-embedding_ranker = PytorchEmbeddingRanker()
-data_store_factory = SupabaseDataStoreFactory()
-thumbnail_generator = OpenCVThumbnailGenerator()
-auth_provider_factory = SupabaseAuthProviderFactory()
-auth_provider = auth_provider_factory.new()
-temporary_storage = TemporaryStorage(root=Path("temp"))
-
-pipeline = Pipeline(
-    speech_transcriber=speech_transcriber, 
-    embedding_model=embedding_model,
-    query_classifier=query_classifier,
-    query_rewriter=query_rewriter,
-    frame_processor=frame_processor,
-    embedding_ranker=embedding_ranker,
-    data_store=data_store_factory.new(),
-    thumbnail_generator=thumbnail_generator,
-    temporary_storage = temporary_storage
-)
+pipeline = PipelineFactory().new()
 
 app = FastAPI()
 app.add_middleware(
@@ -85,30 +56,29 @@ async def get_current_user(
             detail="Invalid authentication credentials",
         )
 
+def process_video_job(
+    user_id: str,
+    video_id: str,
+) -> None:
+    worker_pipeline = get_worker_pipeline()
+
+    worker_pipeline.process_video(
+        user_id,
+        video_id,
+    )
+
 @app.post("/index/upload")
 async def upload_video(
-    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user)
 ) -> None:
     user_id = current_user.id
-    video_id = pipeline.generate_video_id()
-    video_path = temporary_storage.store(user_id, video_id, file)
-    pipeline.save_upload(user_id, video_id, video_path,
-    {
-        "status": "processing",
-        "stage": "Transcribing...",
-        "created_at" : str(datetime.datetime.now())
-    })
-    
-    thumbnail = pipeline.generate_thumbnail(video_path)
-    pipeline.save_thumbnail(user_id, video_id, thumbnail)
-    
-    background_tasks.add_task(
-        pipeline.index_video_and_cleanup,
+
+    video_id = pipeline.upload_video(user_id, file)
+    worker_queue.enqueue(
+        process_video_job,
         user_id,
-        video_id,
-        video_path
+        video_id
     )
 
     return {"video_id": video_id}
