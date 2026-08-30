@@ -8,8 +8,8 @@ load_dotenv()
 
 class RedisQueueFactory(WorkerQueueFactory):
     def new(self) -> WorkerQueue:
-        redis = Redis(
-            host=os.getenv("REDIS_URL")
+        redis = Redis.from_url(
+            os.getenv("REDIS_URL")
         )
 
         return RedisQueue(
