@@ -10,6 +10,7 @@ class RedisQueue(WorkerQueue):
     ):
         self._queue = Queue(
             connection=redis,
+            default_timeout=1800
         )
 
     def enqueue(
