@@ -15,11 +15,11 @@ class MainPipelineFactory():
         data_store_factory = None#SupabaseDataStoreFactory()
         thumbnail_generator = None#OpenCVThumbnailGenerator()
 
-        return MainPipeline(
-            embedding_model=embedding_model,
-            query_classifier=query_classifier,
-            query_rewriter=query_rewriter,
-            embedding_ranker=embedding_ranker,
-            data_store=data_store_factory.new(),
-            thumbnail_generator=thumbnail_generator,
-        )
+        return None#MainPipeline(
+            #embedding_model=embedding_model,
+            #query_classifier=query_classifier,
+            #query_rewriter=query_rewriter,
+            #embedding_ranker=embedding_ranker,
+            #data_store=data_store_factory.new(),
+            #thumbnail_generator=thumbnail_generator,
+        #)
