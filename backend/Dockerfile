@@ -15,4 +15,4 @@ COPY . .
 
 RUN pip install .
 
-CMD ["sh", "-c", "uvicorn src.frame_finder.api.main:app --host 0.0.0.0 --port $PORT"]
+CMD ["uvicorn", "src.frame_finder.api.main:app", "--host", "0.0.0.0", "--port", "8080"]
