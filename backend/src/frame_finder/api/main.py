@@ -27,8 +27,9 @@ def get_main_pipeline() -> MainPipeline:
     global main_pipeline
 
     if main_pipeline is None:
+        print("have no pipeline -> calling factory")
         main_pipeline = MainPipelineFactory().new()
-
+    print("have a pipeline")
     return main_pipeline
 
 app = FastAPI()
@@ -111,6 +112,8 @@ async def search(
 @app.get("/videos")
 async def get_all_videos(current_user: User = Depends(get_current_user)):
     user_id = current_user.id
+    print(user_id)
+    print("attempting fetch")
     pipeline = get_main_pipeline()
     all_meta_data = pipeline.load_all_metadata(user_id)
 
