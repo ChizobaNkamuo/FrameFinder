@@ -18,7 +18,7 @@ from src.frame_finder.pydantic_classes.user import User
 from src.frame_finder.api.worker import process_video_job
 
 auth_provider = SupabaseAuthProviderFactory().new()
-worker_queue = None#RedisQueueFactory().new()
+worker_queue = RedisQueueFactory().new()
 
 pipeline = None#MainPipelineFactory().new()
 
