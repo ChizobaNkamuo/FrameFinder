@@ -52,6 +52,9 @@ async def get_current_user(
             detail="Invalid authentication credentials",
         )
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 @app.post("/index/upload")
 async def upload_video(
