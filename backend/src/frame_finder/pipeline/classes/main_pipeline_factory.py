@@ -8,13 +8,19 @@ from src.frame_finder.pipeline.classes.main_pipeline import MainPipeline
 
 class MainPipelineFactory():
     def new(self) -> MainPipeline:
+        print("started main constructor -> embedding model")
         embedding_model = CLIPEmbeddingModel(model="openai/clip-vit-base-patch32")
+        print("started classifier")
         query_classifier = RuleBasedClassifier()
+        print("started ollama")
         query_rewriter = OllamaQueryRewriter(model="qwen2.5:1.5b")
+        print("started ranker")
         embedding_ranker = PytorchEmbeddingRanker()
+        print("started data factory")
         data_store_factory = SupabaseDataStoreFactory()
+        print("started thumbnail generator")
         thumbnail_generator = OpenCVThumbnailGenerator()
-
+        print("done")
         return None#MainPipeline(
             #embedding_model=embedding_model,
             #query_classifier=query_classifier,
