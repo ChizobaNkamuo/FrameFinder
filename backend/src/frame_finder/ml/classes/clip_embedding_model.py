@@ -7,16 +7,23 @@ load_dotenv()
 
 class CLIPEmbeddingModel(EmbeddingModel):
     def __init__(self, model: str, device: str | None = None):
+        print("1")
         self._device = device or (
             "cuda" if torch.cuda.is_available() else "cpu"
         )
+        print("2")
         hf_token = os.getenv("HF_TOKEN")
-
+        print("3")
         try:
+            print("4")
             self._processor = CLIPProcessor.from_pretrained(model, token=hf_token)
+            print("5")
             self._model = CLIPModel.from_pretrained(model, token=hf_token).to(self._device)
+            print("6")
             self._model.eval()
+            print("7")
         except Exception as e:
+            print(e)
             raise ValueError(f"Invalid or unsupported model: {model}") from e
 
     @torch.no_grad()
