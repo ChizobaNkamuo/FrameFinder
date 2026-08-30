@@ -20,7 +20,7 @@ from src.frame_finder.api.worker import process_video_job
 auth_provider = SupabaseAuthProviderFactory().new()
 worker_queue = RedisQueueFactory().new()
 
-pipeline = None#MainPipelineFactory().new()
+pipeline = MainPipelineFactory().new()
 
 app = FastAPI()
 app.add_middleware(
