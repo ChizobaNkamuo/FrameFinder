@@ -18,10 +18,12 @@ class CLIPEmbeddingModel(EmbeddingModel):
             print("4")
             self._processor = CLIPProcessor.from_pretrained(model, token=hf_token)
             print("5")
-            self._model = CLIPModel.from_pretrained(model, token=hf_token).to(self._device)
+            self._model = CLIPModel.from_pretrained(model, token=hf_token)
             print("6")
-            self._model.eval()
+            self._model = self._model.to(self._device)
             print("7")
+            self._model.eval()
+            print("8")
         except Exception as e:
             print(e)
             raise ValueError(f"Invalid or unsupported model: {model}") from e

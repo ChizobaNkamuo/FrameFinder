@@ -9,7 +9,7 @@ from src.frame_finder.pipeline.classes.main_pipeline import MainPipeline
 class MainPipelineFactory():
     def new(self) -> MainPipeline:
         print("started main constructor -> embedding model")
-        embedding_model = CLIPEmbeddingModel(model="openai/clip-vit-base-patch32")
+        embedding_model = CLIPEmbeddingModel(model="openai/clip-vit-base-patch32", device="cpu")
         print("started classifier")
         query_classifier = RuleBasedClassifier()
         print("started ollama")
