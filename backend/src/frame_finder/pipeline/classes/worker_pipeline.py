@@ -78,7 +78,7 @@ class WorkerPipeline:
         user_id: str,
         video_id: str,
     ):
-        video_url = self.get_video_url(
+        video_url = self._data_store.get_video_url(
             user_id,
             video_id,
         )
