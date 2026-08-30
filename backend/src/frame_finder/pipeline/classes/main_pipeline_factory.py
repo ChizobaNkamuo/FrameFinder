@@ -1,5 +1,5 @@
 from src.frame_finder.pipeline.classes.rule_based_classifier import RuleBasedClassifier
-from src.frame_finder.ml.classes.ollama_query_rewriter import OllamaQueryRewriter
+#from src.frame_finder.ml.classes.ollama_query_rewriter import OllamaQueryRewriter
 from src.frame_finder.pipeline.classes.pytorch_embedding_ranker import PytorchEmbeddingRanker
 from src.frame_finder.pipeline.classes.open_cv_thumbnail_generator import OpenCVThumbnailGenerator
 from src.frame_finder.data.classes.supabase_data_store_factory import SupabaseDataStoreFactory
@@ -10,7 +10,7 @@ class MainPipelineFactory():
     def new(self) -> MainPipeline:
         embedding_model = CLIPEmbeddingModel(model="openai/clip-vit-base-patch32")
         query_classifier = RuleBasedClassifier()
-        query_rewriter = OllamaQueryRewriter(model="qwen2.5:1.5b")
+        query_rewriter = None#OllamaQueryRewriter(model="qwen2.5:1.5b")
         embedding_ranker = PytorchEmbeddingRanker()
         data_store_factory = SupabaseDataStoreFactory()
         thumbnail_generator = OpenCVThumbnailGenerator()

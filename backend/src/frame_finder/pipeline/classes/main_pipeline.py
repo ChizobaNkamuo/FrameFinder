@@ -8,7 +8,6 @@ from src.frame_finder.ml.interfaces.query_rewriter import QueryRewriter
 from src.frame_finder.pipeline.interfaces.embedding_ranker import EmbeddingRanker
 from src.frame_finder.pipeline.interfaces.thumbnail_generator import ThumbnailGenerator
 from src.frame_finder.data.interfaces.data_store import DataStore
-from src.frame_finder.data_classes.transcript_segment import TranscriptSegment
 from src.frame_finder.data_classes.indexed_video import IndexedVideo
 from src.frame_finder.data_classes.query import Query
 from src.frame_finder.data_classes.embeddable import Embeddable
@@ -19,7 +18,7 @@ import uuid, datetime, shutil
 class MainPipeline:
     def __init__(self, 
                  embedding_model: EmbeddingModel, query_classifier: QueryClassifier, 
-                 query_rewriter: QueryRewriter, embedding_ranker: EmbeddingRanker,
+                 query_rewriter: None, embedding_ranker: EmbeddingRanker,
                  data_store: DataStore, thumbnail_generator: ThumbnailGenerator
                  ):
         self._embedding_model = embedding_model
@@ -28,7 +27,7 @@ class MainPipeline:
         self._embedding_ranker = embedding_ranker
         self._data_store = data_store
         self._thumbnail_generator = thumbnail_generator
-        
+
     def rank_embeddings(
         self,
         query_embedding: np.ndarray,
