@@ -17,6 +17,7 @@ from src.frame_finder.pydantic_classes.auth_response import AuthResponse
 from src.frame_finder.pydantic_classes.user import User
 from src.frame_finder.api.worker import process_video_job
 
+MAX_VIDEO_SIZE = 50 * 1024 * 1024
 auth_provider = SupabaseAuthProviderFactory().new()
 worker_queue = RedisQueueFactory().new()
 
@@ -61,6 +62,12 @@ async def upload_video(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user)
 ) -> None:
+    if file.size is not None and file.size > MAX_VIDEO_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail="Video must be smaller than 50 MB",
+        )
+    
     user_id = current_user.id
 
     video_id = pipeline.upload_video(user_id, file)
