@@ -7,6 +7,7 @@ from fastapi.security import (
 
 from src.frame_finder.data.classes.supabase_auth_provider_factory import SupabaseAuthProviderFactory
 from src.frame_finder.pipeline.classes.main_pipeline_factory import MainPipelineFactory
+from src.frame_finder.pipeline.classes.main_pipeline import MainPipeline
 from src.frame_finder.pipeline.classes.redis_queue_factory import RedisQueueFactory
 
 from src.frame_finder.pydantic_classes.light_video_response import LightVideoResponse
@@ -20,7 +21,15 @@ from src.frame_finder.api.worker import process_video_job
 auth_provider = SupabaseAuthProviderFactory().new()
 worker_queue = RedisQueueFactory().new()
 
-pipeline = MainPipelineFactory().new()
+main_pipeline: MainPipeline | None = None
+
+def get_main_pipeline() -> MainPipeline:
+    global main_pipeline
+
+    if main_pipeline is None:
+        main_pipeline = MainPipelineFactory().new()
+
+    return main_pipeline
 
 app = FastAPI()
 app.add_middleware(
@@ -63,7 +72,7 @@ async def upload_video(
 ) -> None:
     user_id = current_user.id
 
-    video_id = pipeline.upload_video(user_id, file)
+    video_id = get_main_pipeline().upload_video(user_id, file)
     worker_queue.enqueue(
         process_video_job,
         user_id,
@@ -79,6 +88,7 @@ async def search(
     top_k: int = 10,
     current_user: User = Depends(get_current_user)
 ):
+    pipeline = get_main_pipeline()
     video_data = pipeline.load_indexed_video(current_user.id, video_id)
     formatted_query = pipeline.extract_query_info(query)
     ranked_video = pipeline.get_ranked_video(formatted_query, video_data.indexed_video, top_k)
@@ -101,6 +111,7 @@ async def search(
 @app.get("/videos")
 async def get_all_videos(current_user: User = Depends(get_current_user)):
     user_id = current_user.id
+    pipeline = get_main_pipeline()
     all_meta_data = pipeline.load_all_metadata(user_id)
 
     return [
@@ -120,7 +131,7 @@ async def get_video(
     video_id: str,
     current_user: User = Depends(get_current_user)
     ):
-    return pipeline.get_video_url(current_user.id, video_id)
+    return get_main_pipeline().get_video_url(current_user.id, video_id)
 
 @app.post("/auth/login")
 def sign_in(email: str, password: str):
