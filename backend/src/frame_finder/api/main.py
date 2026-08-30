@@ -74,7 +74,8 @@ async def upload_video(
     worker_queue.enqueue(
         process_video_job,
         user_id,
-        video_id
+        video_id,
+        job_timeout=1800
     )
 
     return {"video_id": video_id}
