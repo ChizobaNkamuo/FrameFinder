@@ -1,5 +1,9 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import (
+    HTTPAuthorizationCredentials,
+    HTTPBearer,
+)
 
 from src.frame_finder.data.classes.supabase_auth_provider_factory import SupabaseAuthProviderFactory
 from src.frame_finder.pipeline.classes.main_pipeline_factory import MainPipelineFactory
@@ -13,10 +17,10 @@ from src.frame_finder.pydantic_classes.auth_response import AuthResponse
 from src.frame_finder.pydantic_classes.user import User
 from src.frame_finder.api.worker import process_video_job
 
-auth_provider = SupabaseAuthProviderFactory().new()
-worker_queue = RedisQueueFactory().new()
+auth_provider = None#SupabaseAuthProviderFactory().new()
+worker_queue = None#RedisQueueFactory().new()
 
-pipeline = MainPipelineFactory().new()
+pipeline = None#MainPipelineFactory().new()
 
 app = FastAPI()
 app.add_middleware(
@@ -26,15 +30,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-from fastapi import Depends, HTTPException, status
-from fastapi.security import (
-    HTTPAuthorizationCredentials,
-    HTTPBearer,
-)
-
 security = HTTPBearer()
-
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),

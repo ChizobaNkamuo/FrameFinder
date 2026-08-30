@@ -18,7 +18,7 @@ import uuid, datetime, shutil
 class MainPipeline:
     def __init__(self, 
                  embedding_model: EmbeddingModel, query_classifier: QueryClassifier, 
-                 query_rewriter: None, embedding_ranker: EmbeddingRanker,
+                 query_rewriter: QueryRewriter, embedding_ranker: EmbeddingRanker,
                  data_store: DataStore, thumbnail_generator: ThumbnailGenerator
                  ):
         self._embedding_model = embedding_model
