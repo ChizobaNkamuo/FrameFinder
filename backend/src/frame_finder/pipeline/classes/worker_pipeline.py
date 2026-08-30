@@ -84,7 +84,7 @@ class WorkerPipeline:
         )
 
         with TemporaryDirectory() as temp_dir:
-            video_path = temp_dir / video_id
+            video_path = Path(temp_dir) / video_id
 
             self._file_downloader.download(
                 video_url,
