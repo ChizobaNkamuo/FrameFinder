@@ -21,11 +21,11 @@ class MainPipelineFactory():
         print("started thumbnail generator")
         thumbnail_generator = OpenCVThumbnailGenerator()
         print("done")
-        return None#MainPipeline(
-            #embedding_model=embedding_model,
-            #query_classifier=query_classifier,
-            #query_rewriter=query_rewriter,
-            #embedding_ranker=embedding_ranker,
-            #data_store=data_store_factory.new(),
-            #thumbnail_generator=thumbnail_generator,
-        #)
+        return MainPipeline(
+            embedding_model=embedding_model,
+            query_classifier=query_classifier,
+            query_rewriter=query_rewriter,
+            embedding_ranker=embedding_ranker,
+            data_store=data_store_factory.new(),
+            thumbnail_generator=thumbnail_generator,
+        )
