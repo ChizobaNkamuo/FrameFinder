@@ -1,5 +1,5 @@
 from src.frame_finder.pipeline.interfaces.worker_queue import WorkerQueue
-from typing import Any, Callable
+from src.frame_finder.api.worker import process_video_job
 from redis import Redis
 from rq import Queue
 
@@ -13,16 +13,10 @@ class RedisQueue(WorkerQueue):
             default_timeout=1800
         )
 
-    def enqueue(
-        self,
-        function: Callable[..., Any],
-        *args: Any,
-        **kwargs: Any,
-    ) -> str:
+    def enqueue(self, user_id: str, video_id: str) -> str:
         job = self._queue.enqueue(
-            function,
-            *args,
-            **kwargs,
+            process_video_job,
+            user_id,
+            video_id,
         )
-
         return job.id

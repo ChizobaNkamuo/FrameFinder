@@ -1,5 +1,6 @@
 from src.frame_finder.pipeline.classes.worker_pipeline_factory import WorkerPipelineFactory
 from src.frame_finder.pipeline.classes.worker_pipeline import WorkerPipeline
+import runpod
 
 _worker_pipeline: WorkerPipeline | None = None
 
@@ -21,3 +22,16 @@ def process_video_job(
         user_id,
         video_id,
     )
+
+def handler(job):
+    data = job["input"]
+
+    return process_video_job(
+        user_id=data["user_id"],
+        video_id=data["video_id"],
+    )
+
+
+runpod.serverless.start({
+    "handler": handler
+})

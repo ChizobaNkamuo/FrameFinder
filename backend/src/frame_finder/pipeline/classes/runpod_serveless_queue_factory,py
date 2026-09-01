@@ -1,0 +1,13 @@
+from src.frame_finder.pipeline.classes.runpod_serverless_queue import RunpodQueue
+from src.frame_finder.pipeline.interfaces.worker_queue import WorkerQueue
+from src.frame_finder.pipeline.interfaces.worker_queue_factory import WorkerQueueFactory
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+class RunpodQueueFactory(WorkerQueueFactory):
+    def new(self) -> WorkerQueue:
+        return RunpodQueue(
+            runpod_endpoint=os.getenv("RUNPOD_API_ENDPOINT"),
+            runpod_api_key=os.getenv("RUNPOD_API_KEY")
+        )
