@@ -48,6 +48,7 @@ class WorkerPipeline:
         processed_segments = self.process_segments(transcripted_segments)
 
         self._data_store.save_transcripts(
+            user_id,
             video_id,
             processed_segments,
         )     
@@ -60,6 +61,7 @@ class WorkerPipeline:
 
         processed_frames = self._frame_processor.process_frames(video_path, 10)   
         self._data_store.save_video_frames(
+            user_id,
             video_id,
             processed_frames,
         )     
