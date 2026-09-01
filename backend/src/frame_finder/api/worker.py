@@ -25,11 +25,12 @@ def process_video_job(
 
 def handler(job):
     data = job["input"]
+    print(data)
 
-    return process_video_job(
-        user_id=data["user_id"],
-        video_id=data["video_id"],
-    )
+    #return process_video_job(
+    #    user_id=data["user_id"],
+    #    video_id=data["video_id"],
+    #)
 
 
 runpod.serverless.start({
