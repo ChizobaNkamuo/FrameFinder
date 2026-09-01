@@ -7,7 +7,7 @@ from fastapi.security import (
 
 from src.frame_finder.data.classes.supabase_auth_provider_factory import SupabaseAuthProviderFactory
 from src.frame_finder.pipeline.classes.main_pipeline_factory import MainPipelineFactory
-from src.frame_finder.pipeline.classes.redis_queue_factory import RedisQueueFactory
+from src.frame_finder.pipeline.classes.runpod_queue_factory import RunpodQueueFactory
 
 from src.frame_finder.pydantic_classes.light_video_response import LightVideoResponse
 from src.frame_finder.pydantic_classes.search_response import SearchResponse
@@ -15,11 +15,10 @@ from src.frame_finder.pydantic_classes.video_frame import VideoFrame
 from src.frame_finder.pydantic_classes.transcript_segment import TranscriptSegment
 from src.frame_finder.pydantic_classes.auth_response import AuthResponse
 from src.frame_finder.pydantic_classes.user import User
-from src.frame_finder.api.worker import process_video_job
 
 MAX_VIDEO_SIZE = 50 * 1024 * 1024
 auth_provider = SupabaseAuthProviderFactory().new()
-worker_queue = RedisQueueFactory().new()
+worker_queue = RunpodQueueFactory().new()
 
 pipeline = MainPipelineFactory().new()
 
@@ -72,7 +71,6 @@ async def upload_video(
 
     video_id = pipeline.upload_video(user_id, file)
     worker_queue.enqueue(
-        process_video_job,
         user_id,
         video_id,
     )

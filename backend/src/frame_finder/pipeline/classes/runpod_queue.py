@@ -1,7 +1,6 @@
 from src.frame_finder.pipeline.interfaces.worker_queue import WorkerQueue
 import requests
 
-
 class RunpodQueue(WorkerQueue):
     def __init__(
         self,

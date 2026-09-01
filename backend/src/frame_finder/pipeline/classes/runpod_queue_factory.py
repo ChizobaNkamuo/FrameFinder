@@ -1,4 +1,4 @@
-from src.frame_finder.pipeline.classes.runpod_serverless_queue import RunpodQueue
+from src.frame_finder.pipeline.classes.runpod_queue import RunpodQueue
 from src.frame_finder.pipeline.interfaces.worker_queue import WorkerQueue
 from src.frame_finder.pipeline.interfaces.worker_queue_factory import WorkerQueueFactory
 from dotenv import load_dotenv
