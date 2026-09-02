@@ -32,7 +32,7 @@ export default function VideoPlayer({
             <video
                 ref={videoRef}
                 className="video-player-video"
-                src={videoURL}
+                src={videoURL ?? undefined}
                 controls
             />
         </div>

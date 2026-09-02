@@ -1,6 +1,5 @@
 import type { LightVideoResponse } from "../interfaces/videos";
 import "./VideoCard.css";
-import { API_URL } from "../config";
 import VideoStatus from "./VideoStatus";
 import { useNavigate } from "react-router-dom";
 
