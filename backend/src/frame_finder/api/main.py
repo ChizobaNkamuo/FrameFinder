@@ -15,6 +15,10 @@ from src.frame_finder.pydantic_classes.video_frame import VideoFrame
 from src.frame_finder.pydantic_classes.transcript_segment import TranscriptSegment
 from src.frame_finder.pydantic_classes.auth_response import AuthResponse
 from src.frame_finder.pydantic_classes.user import User
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 
 MAX_VIDEO_SIZE = 50 * 1024 * 1024
 auth_provider = SupabaseAuthProviderFactory().new()
@@ -25,7 +29,7 @@ pipeline = MainPipelineFactory().new()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://framefinder.up.railway.app"],
+    allow_origins=[os.getenv("FRONTEND_ORIGIN")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
