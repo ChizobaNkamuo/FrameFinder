@@ -68,7 +68,7 @@ export default function HomePage() {
                 FrameFinder
             </Title>
             
-            <SearchBar onSearch={setSearchQuery} processing={false}/>
+            <SearchBar onSearch={setSearchQuery} processing={false} searchOnChange={true}/>
             <h3>Your Videos</h3>
             <div className="video-grid">
                 <UploadButton

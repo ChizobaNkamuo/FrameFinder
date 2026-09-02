@@ -6,9 +6,10 @@ import { Search } from "lucide-react";
 type SearchBarProps = {
     onSearch: (query: string) => void;
     processing: boolean
+    searchOnChange: boolean
 };
 
-export default function SearchBar({ onSearch, processing }: SearchBarProps) {
+export default function SearchBar({ onSearch, processing, searchOnChange }: SearchBarProps) {
     const [searchQuery, setSearchQuery] = useState<string>("");
 
     return (
@@ -17,17 +18,24 @@ export default function SearchBar({ onSearch, processing }: SearchBarProps) {
                 type="text"
                 placeholder="Search..."
                 onKeyDown={(event) => {
-                    if (event.key === "Enter" && !processing) {
+                    if (!searchOnChange && event.key === "Enter" && !processing) {
                         onSearch(searchQuery);
                     }
                 }}
-                onChange={(event) => setSearchQuery(event.currentTarget.value.toLowerCase())}
+                onChange={(event) => {
+                    var latestSearchQuery = event.currentTarget.value.toLowerCase();
+                    setSearchQuery(latestSearchQuery);
+
+                    if (searchOnChange) {
+                        onSearch(latestSearchQuery);
+                    }
+                }}
             />
             
             <span className="status-spinner" />
             <button type="button" aria-label="Search"
                onClick={() => {
-                    if (!processing) {
+                    if (!searchOnChange && !processing) {
                         onSearch(searchQuery);
                     }
                 }}            

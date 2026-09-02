@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Layers2, Eye } from "lucide-react";
+import { Layers2, Eye, EyeOff } from "lucide-react";
 
 import { signup } from "../api/auth";
 import "./AuthPage.css";
@@ -15,6 +15,8 @@ export default function SignUpPage() {
 
     const [error, setError] = useState("");
     const [processing, setProcessing] = useState(false);
+    const [passwordHidden, setPasswordHidden] = useState(true);
+    const [confirmPasswordHidden, setConfirmPasswordHidden] = useState(true);
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault();
@@ -84,7 +86,7 @@ export default function SignUpPage() {
 
                         <div className="auth-password-input">
                             <input
-                                type="password"
+                                type={passwordHidden ? "password" : "text"}
                                 placeholder="Create a password"
                                 value={password}
                                 onChange={event =>
@@ -93,8 +95,17 @@ export default function SignUpPage() {
                                 required
                             />
 
-                            <Eye size={18} />
-                        </div>
+                            <button
+                                type="button"
+                                onClick={() => setPasswordHidden(hidden => !hidden)}
+                                aria-label={passwordHidden ? "Show password" : "Hide password"}
+                            >
+                                {passwordHidden
+                                    ? <Eye size={18} />
+                                    : <EyeOff size={18} />
+                                }
+                            </button>
+                        </div>   
                     </label>
 
                     <label>
@@ -102,19 +113,26 @@ export default function SignUpPage() {
 
                         <div className="auth-password-input">
                             <input
-                                type="password"
+                                type={confirmPasswordHidden ? "password" : "text"}
                                 placeholder="Confirm your password"
                                 value={confirmPassword}
                                 onChange={event =>
-                                    setConfirmPassword(
-                                        event.currentTarget.value
-                                    )
+                                    setConfirmPassword(event.currentTarget.value)
                                 }
                                 required
                             />
 
-                            <Eye size={18} />
-                        </div>
+                            <button
+                                type="button"
+                                onClick={() => setConfirmPasswordHidden(hidden => !hidden)}
+                                aria-label={confirmPasswordHidden ? "Show password" : "Hide password"}
+                            >
+                                {confirmPasswordHidden
+                                    ? <Eye size={18} />
+                                    : <EyeOff size={18} />
+                                }
+                            </button>
+                        </div>   
                     </label>
 
                     {error && (

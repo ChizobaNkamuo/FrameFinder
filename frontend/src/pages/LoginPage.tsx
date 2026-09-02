@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Layers2, Eye } from "lucide-react";
+import { Layers2, Eye, EyeOff } from "lucide-react";
 
 import { login } from "../api/auth";
 import "./AuthPage.css";
@@ -13,6 +13,7 @@ export default function LoginPage() {
 
     const [error, setError] = useState("");
     const [processing, setProcessing] = useState(false);
+    const [passwordHidden, setPasswordHidden] = useState(true);
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault();
@@ -75,7 +76,7 @@ export default function LoginPage() {
 
                         <div className="auth-password-input">
                             <input
-                                type="password"
+                                type={passwordHidden ? "password" : "text"}
                                 placeholder="Enter your password"
                                 value={password}
                                 onChange={event =>
@@ -84,24 +85,18 @@ export default function LoginPage() {
                                 required
                             />
 
-                            <Eye size={18} />
-                        </div>
+                            <button
+                                type="button"
+                                onClick={() => setPasswordHidden(hidden => !hidden)}
+                                aria-label={passwordHidden ? "Show password" : "Hide password"}
+                            >
+                                {passwordHidden
+                                    ? <Eye size={18} />
+                                    : <EyeOff size={18} />
+                                }
+                            </button>
+                        </div>                               
                     </label>
-
-                    <div className="auth-options">
-                        <label className="auth-checkbox">
-                            <input type="checkbox" />
-
-                            <span>Remember me</span>
-                        </label>
-
-                        <button
-                            type="button"
-                            className="auth-text-button"
-                        >
-                            Forgot password?
-                        </button>
-                    </div>
 
                     {error && (
                         <p className="auth-error">

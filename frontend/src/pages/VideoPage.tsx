@@ -64,7 +64,7 @@ export default function VideoPage() {
             <main className="video-page-content">
                 <VideoPlayer videoId={videoId ?? null} videoRef={videoRef}/>
 
-                <SearchBar onSearch={fetchSearchResult} processing={processingQuery} />
+                <SearchBar onSearch={fetchSearchResult} processing={processingQuery} searchOnChange={false} />
 
                 <SearchResults
                 searchResponses={queryResults}
