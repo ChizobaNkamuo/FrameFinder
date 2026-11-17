@@ -63,10 +63,13 @@ class SupabaseAuthProvider(AuthProvider):
                 "email": email,
                 "password": password,
             })
+ 
             return AuthResult(
                 success=True,
                 user_id=response.user.id,
                 email=response.user.email,
+                access_token=response.session.access_token,
+                refresh_token=response.session.refresh_token
             )
 
         except Exception as error:
